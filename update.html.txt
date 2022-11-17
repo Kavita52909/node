@@ -1,0 +1,191 @@
+//controler
+module.exports.update_student_page = (req, res) => {
+    Student.findOne({ _id: req.params.id }, (err, student) => {
+        if (err) {
+            res.json({ success: false, message: err });
+        } else {
+            if (!student) {
+                res.json({ success: false, message: 'No student found' });
+            } else {
+                res.render('updatestudent', { student: student });
+            }
+        }
+    });
+};
+
+module.exports.update_student = (req, res) => {
+    Student.findOne({ _id: req.params.id }, (err, student) => {
+        if (err) {
+            res.json({ success: false, message: 'Not a valid student id' });
+        } else {
+            if (!student) {
+                res.json({ success: false, message: 'Student not found' });
+            } else {
+                student.name = req.body.name;
+                student.email = req.body.email;
+                student.class = req.body.class;
+                student.semester = req.body.semester;
+                student.save((err) => {
+                    if (err) {
+                        res.json({ success: false, message: 'Could not save student. Error: ', err });
+                    } else {
+                        res.json({ success: true, message: 'Student saved!' });
+                    }
+                });
+            }
+        }
+    });
+};
+
+module.exports.delete_student_page = (req, res) => {
+    Student.findOne({ _id: req.params.id }, (err, student) => {
+        if (err) {
+            res.json({ success: false, message: err });
+        } else {
+            if (!student) {
+                res.json({ success: false, message: 'No student found' });
+            } else {
+                res.render('deletestudent', { student: student });
+            }
+        }
+    });
+};
+
+module.exports.delete_student = (req, res) => {
+    Student.findOne({ _id: req.params.id }, (err, student) => {
+        if (err) {
+            res.json({ success: false, message: 'Not a valid student id' });
+        } else {
+            if (!student) {
+                res.json({ success: false, message: 'Student not found' });
+            } else {
+                student.remove((err) => {
+                    if (err) {
+                        res.json({ success: false, message: err });
+                    } else {
+                        res.json({ success: true, message: 'Student deleted!' });
+                    }
+                });
+            }
+        }
+    });
+};
+<!--student delete confirmation-->
+<html>
+<head>
+    <title>Delete Student</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- delete student on form submit -->
+    <script>
+        $(document).ready(function(){
+            $("#deletestudent").submit(function(event){
+                event.preventDefault();
+                $.ajax({
+                    url: "/students/<%= student._id %>",
+                    type: "DELETE",
+                    success: function(result){
+                        window.location.href = "/students";
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title" style="text-align: center;">Delete Student</h3>
+                </div>
+                <div class="panel-body">
+                    <form id="deletestudent">
+                        <div class="form-group">
+                            <label for="name">Name:</label>
+                            <input type="text" class="form-control" id="name" value="<%= student.name %>" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" class="form-control" id="email" value="<%= student.email %>" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="class">Class:</label>
+                            <input type="text" class="form-control" id="class" value="<%= student.class %>" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="semester">Semester:</label>
+                            <input type="text" class="form-control" id="semester" value="<%= student.semester %>" disabled>
+                        </div>
+                        <button type="submit" class="btn btn-default">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<!-- student update form -->
+<html>
+<head>
+    <title>Update Student</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- update student on form submit -->
+    <script>
+        $(document).ready(function(){
+            $("#updatestudent").submit(function(event){
+                event.preventDefault();
+                var student = {
+                    name: $("#name").val(),
+                    email: $("#email").val(),
+                    class: $("#class").val(),
+                    semester: $("#semester").val()
+                }
+                $.ajax({
+                    url: "/students/<%= student._id %>",
+                    type: "PUT",
+                    data: student,
+                    success: function(result){
+                        window.location.href = "/students";
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title" style="text-align: center;">Update Student</h3>
+                </div>
+                <div class="panel-body">
+                    <form id="updatestudent">
+                        <div class="form-group">
+                            <label for="name">Name:</label>
+                            <input type="text" class="form-control" id="name" value="<%= student.name %>">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" class="form-control" id="email" value="<%= student.email %>">
+                        </div>
+                        <div class="form-group">
+                            <label for="class">Class:</label>
+                            <input type="text" class="form-control" id="class" value="<%= student.class %>">
+                        </div>
+                        <div class="form-group">
+                            <label for="semester">Semester:</label>
+                            <input type="text" class="form-control" id="semester" value="<%= student.semester %>">
+                        </div>
+                        <button type="submit" class="btn btn-default">Update</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
