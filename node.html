@@ -1,0 +1,201 @@
+const express = require('express')
+const cors = require('cors');
+const app = express()
+const mongoose = require('mongoose')
+app.use(express.urlencoded({extended: false}));
+app.use(express.json());
+app.use(cors());
+
+mongoose.connect('mongodb://127.0.0.1:27017/venuedb', { useNewUrlParser: true ,useUnifiedTopology:true})
+
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "Not Connected to Database ERROR! "));
+
+db.once("open", function () {
+  console.log("Connected Database successfully");
+});
+
+const UserSchema = new mongoose.Schema({
+  // _id: mongoose.Schema.Types.ObjectId,
+ 
+  firstname: {
+    type: String,
+   required: true,
+  },
+  lastname: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+  required: true, unique: true, match: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+  },
+  password: {
+    type: String,
+  required: true,
+  },
+  dob: {
+    type: Date,
+    required: true,
+  },
+  mobileno: {
+    type: Number,
+    required: true,
+  },
+  address: {
+    type: String,
+    required: true,
+  },
+  city: {
+    type: String,
+    required: true,
+  },
+  state: {
+    type: String,
+    required: true,
+  },
+  country: {
+    type: String,
+    required: true,
+  },
+  roll: {
+    type: String,
+    required: true,
+  },
+  isactive: {
+    type: String,
+    required: true,
+  },
+ });
+
+ const tblusermaster =new mongoose.model('tblusermaster', UserSchema,"tblusermaster");
+ app.get('/get',function(req, res){
+var user=new tblusermaster({
+  email:'pooja@gmail.com',
+  password:'pooja', 
+  firstname:'paja',
+  lastname:'patil',
+  dob:1993-09-09,
+ mobileno:9374760998,
+ address:'191 nilkanth park',
+ city:'surat',
+ state:'gujarat',
+country:'india',
+roll:'admin',
+isactive:'y'
+})
+user.save(function(err,tblusermaster){
+  if(err)return console.error(err);
+  res.send(tblusermaster.firstname +"save to tblusermaster.")
+});
+ })
+ app.get("/getall",function(req,res){
+  tblusermaster.find(function(err,tblusermaster){
+    if(err)return console.error(err);
+    console.log(tblusermaster)
+    res.send(tblusermaster)
+  })
+ });
+ app.post('/adduser', function(req, res){
+  res.send({
+      type: 'POST',
+      
+      email:req.body.email,
+      password:req.body.password, 
+      firstname:req.body.firstname,
+      lastname:req.body.lastname,
+      dob:req.body.dob,
+     mobileno:req.body.mobileno,
+     address:req.body.address,
+     city:req.body.city,
+     state:req.body.state,
+    country:req.body.country,
+    roll:req.body.roll,
+    isactive:req.body.isactive
+  });
+});
+// app.post("/login",(req,res)=>{
+//   res.send("my api login")
+// })
+// app.post("/register",(req,res)=>{
+//   res.send("my api register")
+// })
+
+app.listen(5000, () => {
+  console.log(`app listening on port 5000`)
+})
+//addproduct.ejs
+<!-- Add product with Image -->
+
+<html>
+    <head>
+        <title>Add Product</title>
+    </head>
+    <body>
+        <h1>Add Product</h1>
+        <form action="/addproduct" method="post" enctype="multipart/form-data">
+            <table>
+                <tr>
+                    <td>Image</td>
+                    <td><input type="file" name="productImage" accept="image/jpeg, image/png"></td>
+                </tr>
+                <tr>
+                    <td>Name</td>
+                    <td><input type="text" name="title"></td>
+                </tr>
+                <tr>
+                    <td>Price</td>
+                    <td><input type="number" name="price"></td>
+                </tr>
+                <tr>
+                    <td>Description</td>
+                    <td><input type="text" name="description"></td>
+                </tr>
+                <tr>
+                    <td>Category</td>
+                    <td><input type="text" name="category"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><input type="submit" value="Add Product"></td>
+                </tr>
+            </table>
+        </form>
+    </body>
+</html>
+showproducts.ejs
+<!-- Show products in a table with Image -->
+<html>
+<head>
+    <title>Products</title>
+</head>
+<body>
+    <h1>Products</h1>
+    <!-- Add product button -->
+    <a href="/addproduct">Add Product</a>
+    <table border="1">
+        <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Description</th>
+            <th>Category</th>
+        </tr>
+        <% if(products.length == 0) { %>
+            <tr>
+                <td colspan="5">No products found</td>
+            </tr>
+        <% } %>
+        <% for (var i = 0; i < products.length; i++) { %>
+            <tr>
+                <td><img src="<%= products[i].image %>" width="100" height="100"></td>
+                <td><%= products[i].title %></td>
+                <td><%= products[i].price %></td>
+                <td><%= products[i].description %></td>
+                <td><%= products[i].category %></td>
+            </tr>
+        <% } %>
+    </table>
+</body>
+</html>
+
